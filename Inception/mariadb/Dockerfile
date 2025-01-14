@@ -1,13 +1,3 @@
-# FROM mariadb:10.5
-
-# COPY my.cnf /etc/mysql/my.cnf
-# COPY entrypoint.sh /usr/local/bin/custom-entrypoint.sh
-
-# RUN chmod +x /usr/local/bin/custom-entrypoint.sh
-
-# ENTRYPOINT ["/usr/local/bin/custom-entrypoint.sh"]
-# CMD ["mariadbd"]
-
 
 FROM debian:bullseye-slim
 
@@ -24,15 +14,9 @@ COPY entrypoint.sh /usr/local/bin/custom-entrypoint.sh
 RUN chmod +x /usr/local/bin/custom-entrypoint.sh
 
 # Set up the data directory
-# RUN mkdir -p /var/lib/mysql /var/run/mysqld \
-#     && chown -R mysql:mysql /var/lib/mysql /var/run/mysqld \
-#     && chmod 777 /var/run/mysqld
-
-RUN mkdir -p /var/run/mysqld \
-    && chown -R mysql:mysql /var/run/mysqld \
-    && chmod 777 /var/run/mysqld \
-    && mkdir -p /var/lib/mysql \
-    && chown -R mysql:mysql /var/lib/mysql
+RUN mkdir -p /var/lib/mysql /var/run/mysqld \
+    && chown -R mysql:mysql /var/lib/mysql /var/run/mysqld \
+    && chmod 777 /var/run/mysqld
 
 # Expose the MySQL port
 EXPOSE 3306
@@ -41,4 +25,4 @@ EXPOSE 3306
 ENTRYPOINT ["/usr/local/bin/custom-entrypoint.sh"]
 
 # Set the default command
-# CMD ["mysqld"]
+CMD ["mysqld"]

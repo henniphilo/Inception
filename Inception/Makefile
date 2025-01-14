@@ -2,6 +2,7 @@ NAME = inception
 COMPOSE = docker-compose.yml
 INIT = init.sh
 ENV_FILE = .env
+DATA_DIR = /home/hwiemann/data
 
 all: init up
 
@@ -24,8 +25,10 @@ clean: down
 	@echo "Containers Removed"
 
 purge: clean
-	docker volume rm -f $(docker volume ls -q)
+	@docker volume rm $$(docker volume ls -q -f name=$(NAME)) 2>/dev/null || true
 	@echo "Volumes Removed"
+	@sudo rm -rf $(DATA_DIR)
+	@echo "Data directory $(DATA_DIR) removed"
 
 fclean: clean
 	@docker image rm -f $(NAME)-nginx $(NAME)-wordpress $(NAME)-mariadb 2>/dev/null || true

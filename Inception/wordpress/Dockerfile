@@ -2,6 +2,7 @@ FROM debian:bullseye-slim
 
 ENV DEBIAN_FRONTEND=noninteractive
 
+# Install required packages
 RUN apt-get update && apt-get install -y \
     php7.4-fpm \
     php7.4-mysql \
@@ -19,18 +20,22 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Create the directory for WordPress files
-RUN mkdir -p /var/www/html
+RUN mkdir -p /var/www/html && \
+    mkdir -p /var/www/.wp-cli/cache && chown -R www-data:www-data /var/www/.wp-cli
 
-# Download and install WordPress
-RUN curl -O https://wordpress.org/latest.tar.gz \
-    && tar -xzf latest.tar.gz -C /var/www/html --strip-components=1 \
-    && rm latest.tar.gz
+# Copy WordPress files and set ownership
+COPY --chown=www-data:www-data ./ /var/www/html/
 
 # Configure php-fpm to listen on port 9000
 RUN sed -i 's/listen = \/run\/php\/php7.4-fpm.sock/listen = 9000/g' /etc/php/7.4/fpm/pool.d/www.conf
 
 # Redirect PHP-FPM error log to stderr
 RUN sed -i 's|error_log = /var/log/php7.4-fpm.log|error_log = /proc/self/fd/2|g' /etc/php/7.4/fpm/php-fpm.conf
+
+# Install WP-CLI
+RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar \
+    && chmod +x wp-cli.phar \
+    && mv wp-cli.phar /usr/local/bin/wp
 
 # Create directory for php-fpm socket
 RUN mkdir -p /run/php
